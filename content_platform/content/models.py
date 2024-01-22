@@ -82,6 +82,10 @@ class Resource(models.Model):
 
 
 class CustomUserManager(BaseUserManager):
+    """
+    Custom user model manager where email is the unique identifier, there is no username field, and first and last name are required
+    """
+
     def create_user(self, email, password, first_name, last_name, **extra_fields):
         if not email:
             raise ValueError("Users must have an email address")
