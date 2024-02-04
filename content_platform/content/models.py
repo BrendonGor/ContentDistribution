@@ -7,7 +7,7 @@ class Subject(models.Model):
     """Academic discipline (math, physics, etc.)"""
 
     name = models.CharField(max_length=1000, unique=True, null=False)
-    description = models.TextField()
+    description = models.TextField(null=False)
     # Other subject fields
 
 
@@ -84,6 +84,7 @@ class Resource(models.Model):
 class CustomUserManager(BaseUserManager):
     """
     Custom user model manager where email is the unique identifier, there is no username field, and first and last name are required
+    - default manager: https://docs.djangoproject.com/en/4.2/ref/contrib/auth/#django.contrib.auth.models.UserManager
     """
 
     def create_user(self, email, password, first_name, last_name, **extra_fields):
@@ -95,7 +96,10 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("Users must have a last name")
 
         user = self.model(
-            email=email, first_name=first_name, last_name=last_name, **extra_fields
+            email=self.normalize_email(email),
+            first_name=first_name,
+            last_name=last_name,
+            **extra_fields
         )
         user.set_password(password)
         user.save(using=self._db)
@@ -104,7 +108,7 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password, first_name, last_name, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-
+        # is_active is true by default
         return self.create_user(email, password, first_name, last_name, **extra_fields)
 
 
@@ -112,11 +116,14 @@ class CustomUser(AbstractUser):
     """User model for authentication
     - https://testdriven.io/blog/django-custom-user-model/
     - https://docs.djangoproject.com/en/5.0/topics/auth/customizing/#substituting-a-custom-user-model
-    - https://docs.djangoproject.com/en/5.0/ref/contrib/auth/"""
+    - https://docs.djangoproject.com/en/5.0/ref/contrib/auth/
+    and docs on regular user:
+    - https://docs.djangoproject.com/en/4.2/ref/contrib/auth/#django.contrib.auth.models.User
+    """
 
     username = None
     email = models.EmailField(_("email address"), unique=True)
-    first_name = models.CharField(max_length=50, blank=False)
+    first_name = models.CharField(max_length=150, blank=False)
     last_name = models.CharField(max_length=150, blank=False)
 
     USERNAME_FIELD = "email"

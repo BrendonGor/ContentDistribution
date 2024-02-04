@@ -1,0 +1,4 @@
+cd_venv/
+__pycache__/
+db.sqlite3
+# later local_settings.py and .env
